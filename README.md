@@ -1,5 +1,5 @@
 ---
-title: Gradio Chatbot
+title: Case Study 1
 emoji: 💬
 colorFrom: yellow
 colorTo: purple
