@@ -22,9 +22,21 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Deploy to Hugging Face
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      - name: Set up Git credentials
+        run: |
+          git config --global credential.helper store
+          echo "https://${{ secrets.HF_TOKEN }}:@huggingface.co" > ~/.git-credentials
+
+      - name: Remove existing remote if exists
+        run: |
+          git remote remove huggingface || true
+
+      - name: Add Hugging Face remote
         run: |
           git remote add huggingface https://huggingface.co/spaces/cs-553-group2/case-study-1
+
+      - name: Push to Hugging Face
+        run: |
           git push huggingface main
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
