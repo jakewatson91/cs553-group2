@@ -1,2 +1,5 @@
-huggingface_hub==0.22.2
-torch
+huggingface_hub==0.23.*
+gradio==4.39.*
+torch==2.4.*
+transformers==4.43.*
+accelerate==0.33.*
