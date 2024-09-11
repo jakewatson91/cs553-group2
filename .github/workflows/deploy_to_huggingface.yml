@@ -26,5 +26,5 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git remote add huggingface https://$HF_TOKEN@huggingface.co/spaces/cs-553-group2/case-study-1
+          git remote add huggingface https://jakewatson91$HF_TOKEN@huggingface.co/spaces/cs-553-group2/case-study-1
           git push huggingface main
