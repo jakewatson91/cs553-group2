@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from app/respond import respond
+from app import respond
 
 class TestRespondFunction(unittest.TestCase):
 
