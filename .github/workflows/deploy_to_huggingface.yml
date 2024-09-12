@@ -1,4 +1,3 @@
-#test
 name: Deploy to Hugging Face
 
 on:
@@ -13,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Ensures full history is cloned
 
       - name: Set up Python
         uses: actions/setup-python@v3
@@ -23,8 +24,12 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Deploy to Hugging Face
+      - name: Configure Hugging Face remote
+        run: |
+          git remote add huggingface https://huggingface.co/spaces/cs-553-group2/case-study-1
+
+      - name: Push to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git push --force https://jakewatson91:$HF_TOKEN@huggingface.co/spaces/cs-553-group2/case-study-1 main
+          git push --force https://huggingface.co/jakewatson91:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/cs-553-group2/case-study-1 main
