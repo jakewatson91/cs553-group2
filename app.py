@@ -1,4 +1,4 @@
-import gradio as gr #test
+import gradio as gr
 from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
