@@ -32,4 +32,4 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git push --force https://jakewatson91:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/cs-553-group2/case-study-1 main
+          git push https://jakewatson91:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/cs-553-group2/case-study-1 main
