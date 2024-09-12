@@ -1,4 +1,4 @@
-name: unit_test.yml
+name: Simple Unit Test
 
 on:
   push:
