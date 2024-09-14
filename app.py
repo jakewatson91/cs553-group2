@@ -22,9 +22,18 @@ def respond(
     temperature=0.7,
     top_p=0.95,
     use_local_model=False,
+    practicality = 0.5
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
+
+    # Modify system message or prompt based on practicality
+    if practicality > 0.5:
+        # More practical response
+        system_message = system_message + "Provide actionable advice or direct instructions."
+    else:
+        # More theoretical response
+        system_message = system_message + "Provide theoretical concepts or abstract quotes."
 
     # Initialize history if it's None
     if history is None:
@@ -132,26 +141,28 @@ custom_css = """
 
 # Define the interface
 with gr.Blocks(css=custom_css) as demo:
-    gr.Markdown("<h1 style='text-align: center;'>🌟 Fancy AI Chatbot 🌟</h1>")
+    gr.Markdown("<h1 style='text-align: center;'>Ask the Greats</h1>")
     gr.Markdown("Interact with the AI chatbot using customizable settings below.")
 
     with gr.Row():
-        system_message = gr.Textbox(value="You are a friendly Chatbot.", label="System message", interactive=True)
+        # system_message = gr.Textbox(value="You are a friendly Chatbot.", label="System message", interactive=True)
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
 
     with gr.Row():
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
         temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature")
         top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
+        practicality = gr.Slider(minimum=0, maximum=1, value=0.5, step=0.1, label="Practicality")
+
 
     chat_history = gr.Chatbot(label="Chat")
 
-    user_input = gr.Textbox(show_label=False, placeholder="Type your message here...")
+    user_input = gr.Textbox(show_label=False, placeholder="What is the meaning of life?")
 
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
     # Adjusted to ensure history is maintained and passed correctly
-    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model], chat_history)
+    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, practicality, use_local_model], chat_history)
 
     cancel_button.click(cancel_inference)
 
