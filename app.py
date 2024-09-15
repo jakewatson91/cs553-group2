@@ -4,13 +4,13 @@ import torch
 from transformers import pipeline
 
 # Inference client setup
-client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
+client = InferenceClient("HuggingFaceH4/zephyr-7b-alpha")
 pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.float32, device_map="auto")
 
 # Global flag to handle cancellation
 stop_inference = False
 
-base_system_message = "You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders \
+base_system_message = "You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders. \
                  Provide no advice, commentary, or additional context.\
                  Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes."
 
@@ -145,7 +145,7 @@ with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("Interact with the AI chatbot using customizable settings below.")
 
     with gr.Row():
-        # system_message = gr.Textbox(value="You are a friendly Chatbot.", label="System message", interactive=True)
+        # system_message = gr.Textbox(value=system_message, label="System message", interactive=True)
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
 
     with gr.Row():
