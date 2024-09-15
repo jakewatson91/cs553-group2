@@ -4,7 +4,7 @@ import torch
 from transformers import pipeline
 
 # Inference client setup
-client = InferenceClient("HuggingFaceH4/zephyr-7b-alpha")
+client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
 pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.float32, device_map="auto")
 
 # Global flag to handle cancellation
@@ -18,7 +18,7 @@ def respond(
     message,
     history: list[tuple[str, str]],
     system_message=base_system_message,
-    max_tokens=512,
+    max_tokens=256,
     temperature=0.7,
     top_p=0.95,
     use_local_model=False,
