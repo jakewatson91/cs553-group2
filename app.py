@@ -54,7 +54,6 @@ def respond(
             messages,
             max_new_tokens=max_tokens,
             temperature=temperature,
-            practicality=practicality,
             do_sample=True,
             top_p=top_p,
         ):
@@ -82,7 +81,6 @@ def respond(
             max_tokens=max_tokens,
             stream=True,
             temperature=temperature,
-            practicality=practicality,
             top_p=top_p,
         ):
             if stop_inference:
