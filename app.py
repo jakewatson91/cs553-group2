@@ -195,7 +195,7 @@ Your responses should be concise, no more than 3 quotes, and consist only of fam
 def respond(
     message,
     history: list[tuple[str, str]],
-    system_message=base_message,
+    system_message_val,
     max_tokens=512,
     temperature=0.7,
     top_p=0.95,
@@ -204,7 +204,14 @@ def respond(
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
-    
+
+    if practicality > 0.5:
+        system_message = f"{system_message_val}. Provide actionable advice or direct instructions."
+    else:
+        system_message = f"{system_message_val}. Provide theoretical concepts or abstract quotes."
+
+    system_message_update = gr.Textbox.update(value=system_message)
+
     # Initialize history if it's None
     if history is None:
         history = []
@@ -224,7 +231,6 @@ def respond(
             messages,
             max_new_tokens=max_tokens,
             temperature=temperature,
-            practicality=practicality,
             do_sample=True,
             top_p=top_p,
         ):
@@ -252,7 +258,6 @@ def respond(
             max_tokens=max_tokens,
             stream=True,
             temperature=temperature,
-            practicality=practicality,
             top_p=top_p,
         ):
             if stop_inference:
@@ -317,10 +322,11 @@ with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("Want to know the secret to life? Ask away!")
 
     with gr.Row():
-        system_message = gr.Textbox(value="""You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders.
-                                           Provide no advice, commentary, or additional context.
-                                           Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes.
-                                           """
+        system_message_box = gr.Textbox(value=base_message
+                                    # """You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders.
+                                    #        Provide no advice, commentary, or additional context.
+                                    #        Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes.
+                                    #        """
                                     , label="System message"
                                     , visible=False)
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
@@ -336,16 +342,19 @@ with gr.Blocks(css=custom_css) as demo:
     user_input = gr.Textbox(show_label=False, placeholder="Type your message here...")
 
     cancel_button = gr.Button("Cancel Inference", variant="danger")
-
-    # if practicality > 0.5:
-    #     system_message = f"{system_message}. Provide actionable advice or direct instructions."
-    # else:
-    #     append_message = f"{system_message}. Provide theoretical concepts or abstract quotes."
-
     # Adjusted to ensure history is maintained and passed correctly
-    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model], chat_history)
+    user_input.submit(respond, 
+                      inputs=[user_input, chat_history, system_message_box, max_tokens, temperature, top_p, use_local_model],
+                      outputs=[chat_history, system_message_box])
 
     cancel_button.click(cancel_inference)
 
+# Test the local model
+def test_local_model():
+    prompt = "What is the meaning of life?"
+    response = pipe(prompt, max_new_tokens=50)
+    print(response)
+
 if __name__ == "__main__":
+    test_local_model
     demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces
