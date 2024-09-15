@@ -197,11 +197,12 @@ def respond(
     max_tokens=512,
     temperature=0.7,
     top_p=0.95,
+    practicality=0.5,
     use_local_model=False,
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
-
+    
     # Initialize history if it's None
     if history is None:
         history = []
@@ -221,6 +222,7 @@ def respond(
             messages,
             max_new_tokens=max_tokens,
             temperature=temperature,
+            practicality=practicality,
             do_sample=True,
             top_p=top_p,
         ):
@@ -248,6 +250,7 @@ def respond(
             max_tokens=max_tokens,
             stream=True,
             temperature=temperature,
+            practicality=practicality,
             top_p=top_p,
         ):
             if stop_inference:
@@ -312,9 +315,10 @@ with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("Want to know the secret to life? Ask away!")
 
     with gr.Row():
-        system_message = gr.Textbox(value="You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders."
-                                           "Provide no advice, commentary, or additional context."
-                                           "Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes."
+        system_message = gr.Textbox(value="""You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders.
+                                           Provide no advice, commentary, or additional context.
+                                           Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes.
+                                           """
                                     , label="System message"
                                     , visible=False)
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
@@ -323,12 +327,18 @@ with gr.Blocks(css=custom_css) as demo:
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
         temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature")
         top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
+        practicality = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
 
     chat_history = gr.Chatbot(label="Chat")
 
     user_input = gr.Textbox(show_label=False, placeholder="Type your message here...")
 
     cancel_button = gr.Button("Cancel Inference", variant="danger")
+
+    if practicality > 0.5:
+        system_message = f"{system_message}. Provide actionable advice or direct instructions."
+    else:
+        append_message = f"{system_message}. Provide theoretical concepts or abstract quotes."
 
     # Adjusted to ensure history is maintained and passed correctly
     user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model], chat_history)
