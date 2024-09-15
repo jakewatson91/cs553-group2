@@ -188,12 +188,14 @@ pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dty
 # Global flag to handle cancellation
 stop_inference = False
 
+base_message = """You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders.
+Provide no advice, commentary, or additional context.
+Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes."""
+
 def respond(
     message,
     history: list[tuple[str, str]],
-    system_message="You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders. \
-                  Provide no advice, commentary, or additional context.\
-                  Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes.",
+    system_message=base_message,
     max_tokens=512,
     temperature=0.7,
     top_p=0.95,
@@ -335,10 +337,10 @@ with gr.Blocks(css=custom_css) as demo:
 
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
-    if practicality > 0.5:
-        system_message = f"{system_message}. Provide actionable advice or direct instructions."
-    else:
-        append_message = f"{system_message}. Provide theoretical concepts or abstract quotes."
+    # if practicality > 0.5:
+    #     system_message = f"{system_message}. Provide actionable advice or direct instructions."
+    # else:
+    #     append_message = f"{system_message}. Provide theoretical concepts or abstract quotes."
 
     # Adjusted to ensure history is maintained and passed correctly
     user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model], chat_history)
