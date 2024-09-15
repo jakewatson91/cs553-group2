@@ -192,8 +192,8 @@ def respond(
     message,
     history: list[tuple[str, str]],
     system_message="You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders. \
-#                  Provide no advice, commentary, or additional context.\
-#                  Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes.",
+                  Provide no advice, commentary, or additional context.\
+                  Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes.",
     max_tokens=512,
     temperature=0.7,
     top_p=0.95,
@@ -312,7 +312,11 @@ with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("Interact with the AI chatbot using customizable settings below.")
 
     with gr.Row():
-        system_message = gr.Textbox(value="You are a friendly Chatbot.", label="System message", interactive=True)
+        system_message = gr.Textbox(value="You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders. \
+                                           Provide no advice, commentary, or additional context.\
+                                           Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes."
+                                    , label="System message"
+                                    , interactive=True)
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
 
     with gr.Row():
