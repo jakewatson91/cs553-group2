@@ -5,7 +5,7 @@ from transformers import pipeline
 
 # Inference client setup
 client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
-pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
+pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.float32, device_map="auto")
 
 # Global flag to handle cancellation
 stop_inference = False
@@ -54,6 +54,7 @@ def respond(
             messages,
             max_new_tokens=max_tokens,
             temperature=temperature,
+            practicality=practicality,
             do_sample=True,
             top_p=top_p,
         ):
@@ -81,6 +82,7 @@ def respond(
             max_tokens=max_tokens,
             stream=True,
             temperature=temperature,
+            practicality=practicality,
             top_p=top_p,
         ):
             if stop_inference:
@@ -162,9 +164,16 @@ with gr.Blocks(css=custom_css) as demo:
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
     # Adjusted to ensure history is maintained and passed correctly
-    user_input.submit(respond, [user_input, chat_history, practicality, system_message, max_tokens, temperature, top_p, use_local_model], chat_history)
+    user_input.submit(respond, [user_input, chat_history, max_tokens, temperature, top_p, practicality, use_local_model], chat_history)
 
     cancel_button.click(cancel_inference)
 
+# Test the local model
+def test_local_model():
+    prompt = "What is the meaning of life?"
+    response = pipe(prompt, max_new_tokens=50)
+    print(response)
+
 if __name__ == "__main__":
+    test_local_model()
     demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces
