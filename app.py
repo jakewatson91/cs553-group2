@@ -2,9 +2,11 @@ import gradio as gr
 from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
+import os
+from dotenv import load_dotenv
 
 # Inference client setup
-client = InferenceClient("HuggingFaceH4/zephyr-7b-beta", api_key="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")
+client = InferenceClient("HuggingFaceH4/zephyr-7b-beta", token=os.getenv("HF_API_KEY"))
 pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.float32, device_map="auto")
 
 # Global flag to handle cancellation
@@ -174,4 +176,4 @@ def test_local_model():
 
 if __name__ == "__main__":
     test_local_model()
-    demo.launch(share=True)  # Remove share=True because it's not supported on HF Spaces
+    demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces
