@@ -308,15 +308,15 @@ custom_css = """
 
 # Define the interface
 with gr.Blocks(css=custom_css) as demo:
-    gr.Markdown("<h1 style='text-align: center;'>🌟 Fancy AI Chatbot 🌟</h1>")
-    gr.Markdown("Interact with the AI chatbot using customizable settings below.")
+    gr.Markdown("<h1 style='text-align: center;'>💡 Ask the Greats 💡</h1>")
+    gr.Markdown("Want to know the secret to life? Ask away!")
 
     with gr.Row():
-        system_message = gr.Textbox(value="You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders. \
-                                           Provide no advice, commentary, or additional context.\
-                                           Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes."
+        system_message = gr.Textbox(value="You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders."
+                                           "Provide no advice, commentary, or additional context."
+                                           "Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes."
                                     , label="System message"
-                                    , interactive=True)
+                                    , visible=False)
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
 
     with gr.Row():
