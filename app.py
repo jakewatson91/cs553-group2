@@ -5,7 +5,7 @@ from transformers import pipeline
 
 # Inference client setup
 client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
-pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.float32, device_map="auto")
+pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
 
 # Global flag to handle cancellation
 stop_inference = False
@@ -22,18 +22,18 @@ def respond(
     temperature=0.7,
     top_p=0.95,
     use_local_model=False,
-    practicality = 0.5
+    # practicality = 0.5
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
 
     # Modify system message or prompt based on practicality
-    if practicality > 0.5:
-        # More practical response
-        system_message = base_system_message + "Provide actionable advice or direct instructions."
-    else:
-        # More theoretical response
-        system_message = base_system_message + "Provide theoretical concepts or abstract quotes."
+    # if practicality > 0.5:
+    #     # More practical response
+    #     system_message = base_system_message + "Provide actionable advice or direct instructions."
+    # else:
+    #     # More theoretical response
+    #     system_message = base_system_message + "Provide theoretical concepts or abstract quotes."
 
     # Initialize history if it's None
     if history is None:
@@ -162,7 +162,7 @@ with gr.Blocks(css=custom_css) as demo:
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
     # Adjusted to ensure history is maintained and passed correctly
-    user_input.submit(respond, [user_input, chat_history, max_tokens, temperature, top_p, practicality, use_local_model], chat_history)
+    user_input.submit(respond, [user_input, chat_history, max_tokens, temperature, top_p, use_local_model], chat_history)
 
     cancel_button.click(cancel_inference)
 
