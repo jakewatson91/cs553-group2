@@ -191,7 +191,9 @@ stop_inference = False
 def respond(
     message,
     history: list[tuple[str, str]],
-    system_message="You are a friendly Chatbot.",
+    system_message="You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders. \
+#                  Provide no advice, commentary, or additional context.\
+#                  Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes.",
     max_tokens=512,
     temperature=0.7,
     top_p=0.95,
