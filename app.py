@@ -17,6 +17,7 @@ Your responses should be concise, no more than 3 quotes, and consist only of fam
 def respond(
     message,
     history: list[tuple[str, str]],
+    system_message_val,
     temperature=0.7,
     practicality=0.5,
     use_local_model=False,
@@ -55,7 +56,7 @@ def respond(
                 return
             token = output['generated_text'][-1]['content']
             response += token
-            yield history + [(message, response)]  # Yield history + new response
+            yield history + [(message, response)], gr.Textbox.update(value=system_message_val)  # Yield history + new response
 
     else:
         # API-based inference 
@@ -82,7 +83,7 @@ def respond(
                 break
             token = message_chunk.choices[0].delta.content
             response += token
-            yield history + [(message, response)]  # Yield history + new response
+            yield history + [(message, response)], gr.Textbox.update(value=system_message_val)  # Yield history + new response
 
 
 def cancel_inference():
@@ -135,16 +136,16 @@ with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("Want to know the secret to life? Ask away!")
 
     with gr.Row():
-        # system_message_box = gr.Textbox(value=base_message
-        #                             # """You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders.
-        #                             #        Provide no advice, commentary, or additional context.
-        #                             #        Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes.
-        #                             #        """
-        #                             , label="System message"
-        #                             , visible=False)
+        system_message_box = gr.Textbox(value=base_message
+                                    # """You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders.
+                                    #        Provide no advice, commentary, or additional context.
+                                    #        Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes.
+                                    #        """
+                                    , label="System message"
+                                    , visible=True)
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
         temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature")
-        practicality = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Practicality")
+        practicality = gr.Slider(minimum=0.1, maximum=1.0, value=0.5, step=0.05, label="Practicality")
 
     chat_history = gr.Chatbot(label="Chat")
 
@@ -154,7 +155,7 @@ with gr.Blocks(css=custom_css) as demo:
     # Adjusted to ensure history is maintained and passed correctly
     user_input.submit(respond, 
                       inputs=[user_input, chat_history, temperature, practicality, use_local_model],
-                      outputs=chat_history)
+                      outputs=[chat_history, system_message_box])
 
     cancel_button.click(cancel_inference)
 
