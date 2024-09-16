@@ -84,7 +84,7 @@ def respond(
                 break
             token = message_chunk.choices[0].delta.content
             response += token
-            yield history + [(message, response)], value=system_message_val  # Yield history + new response + update system_message gradio component
+            yield history + [(message, response)], system_message_val  # Yield history + new response + update system_message gradio component
 
 
 def cancel_inference():
