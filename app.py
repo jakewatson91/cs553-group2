@@ -151,7 +151,7 @@ with gr.Blocks(css=custom_css) as demo:
 
     chat_history = gr.Chatbot(label="Chat")
 
-    user_input = gr.Textbox(show_label=False, placeholder="Type your message here...")
+    user_input = gr.Textbox(show_label=False, placeholder="What is the meaning of life?")
 
     cancel_button = gr.Button("Cancel Inference", variant="danger")
     # Adjusted to ensure history is maintained and passed correctly
