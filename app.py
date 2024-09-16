@@ -36,7 +36,7 @@ def respond(
 
     if use_local_model:
         # local inference 
-        messages = [{"role": "system", "content": system_message}]
+        messages = [{"role": "system", "content": system_message_val}]
         for val in history:
             if val[0]:
                 messages.append({"role": "user", "content": val[0]})
@@ -60,7 +60,7 @@ def respond(
 
     else:
         # API-based inference 
-        messages = [{"role": "system", "content": system_message}]
+        messages = [{"role": "system", "content": system_message_val}]
         for val in history:
             if val[0]:
                 messages.append({"role": "user", "content": val[0]})
