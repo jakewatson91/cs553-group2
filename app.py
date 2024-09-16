@@ -20,6 +20,7 @@ def respond(
     system_message_val,
     temperature=0.7,
     practicality=0.5,
+    max_new_tokens=256,
     use_local_model=False,
 ):
     global stop_inference
@@ -48,6 +49,7 @@ def respond(
         for output in pipe(
             messages,
             temperature=temperature,
+            max_new_tokens=max_new_tokens,
             do_sample=True,
         ):
             if stop_inference:
@@ -74,6 +76,7 @@ def respond(
             messages,
             stream=True,
             temperature=temperature,
+            max_new_tokens=max_new_tokens
         ):
             if stop_inference:
                 response = "Inference cancelled."
