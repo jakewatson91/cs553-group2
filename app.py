@@ -2,6 +2,7 @@ import gradio as gr
 from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
+import random
 
 # Inference client setup
 client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
@@ -19,17 +20,21 @@ def respond(
     history: list[tuple[str, str]],
     system_message_val,
     temperature=0.7,
-    practicality=0.5,
+    practicality=None,
     max_tokens=256,
     use_local_model=False,
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
 
+    if practicality is None:
+        practicality = round(random.uniform(0,1), 1) # initialize random practicality score
     if practicality > 0.5:
-        system_message_val = f"{base_message}. Provide actionable advice or direct instructions."
+        append_message = "Provide actionable advice or direct instructions."
+        system_message_val = f"{base_message} {append_message}"
     else:
-        system_message_val = f"{base_message}. Provide theoretical concepts or abstract quotes."
+        append_message = "Provide theoretical concepts or abstract quotes."
+        system_message_val = f"{base_message} {append_message}"
 
     # Initialize history if it's None
     if history is None:
