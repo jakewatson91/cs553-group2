@@ -8,7 +8,7 @@ def test_local():
     system_message_val = base_message
     temperature = 0.7
     practicality = 0.8  # This should modify the system message to provide actionable advice
-    max_new_tokens = 256
+    max_tokens = 256
     use_local_model = True
 
     start_time = time.time()
@@ -20,7 +20,7 @@ def test_local():
         system_message_val=system_message_val,
         temperature=temperature,
         practicality=practicality,
-        max_new_tokens=max_new_tokens,
+        max_new_tokens=max_tokens,
         use_local_model=use_local_model
     ))
 
