@@ -12,14 +12,12 @@ class TestRespondFunction(unittest.TestCase):
         # Input parameters for the respond function
         message = "Hello"
         history = [("Hi", "Hello there")]
-        system_message = "You are a friendly Chatbot."
-        max_tokens = 10
         temperature = 0.7
-        top_p = 0.95
+        practicality=0.5
         use_local_model = True
 
         # Call the respond function and convert the generator to a list
-        result = list(respond(message, history, system_message, max_tokens, temperature, top_p, use_local_model))
+        result = list(respond(message, history, temperature, practicality, use_local_model))
 
         # Check that the response is as expected
         self.assertEqual(result[-1], history + [(message, "Hello!")])
