@@ -160,12 +160,5 @@ with gr.Blocks(css=custom_css) as demo:
 
     cancel_button.click(cancel_inference)
 
-# Test the local model
-def test_local_model():
-    prompt = "What is the meaning of life?"
-    response = pipe(prompt, max_new_tokens=50)
-    print(response)
-
 if __name__ == "__main__":
-    test_local_model
     demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces
