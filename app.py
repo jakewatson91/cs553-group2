@@ -151,7 +151,7 @@ with gr.Blocks(css=custom_css) as demo:
                                     #        Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes.
                                     #        """
                                     , label="System message"
-                                    , visible=True)
+                                    , visible=False)
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
         temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature")
         practicality = gr.Slider(minimum=0.1, maximum=1.0, value=0.5, step=0.05, label="Practicality")
