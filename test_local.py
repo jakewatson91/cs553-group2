@@ -20,7 +20,7 @@ def test_local():
         system_message_val=system_message_val,
         temperature=temperature,
         practicality=practicality,
-        max_new_tokens=max_tokens,#test
+        max_tokens=max_tokens,#test
         use_local_model=use_local_model
     ))
 
