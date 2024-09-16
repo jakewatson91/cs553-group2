@@ -17,7 +17,6 @@ Your responses should be concise, no more than 3 quotes, and consist only of fam
 def respond(
     message,
     history: list[tuple[str, str]],
-    system_message_val,
     temperature=0.7,
     practicality=0.5,
     use_local_model=False,
@@ -136,16 +135,14 @@ with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("Want to know the secret to life? Ask away!")
 
     with gr.Row():
-        system_message_box = gr.Textbox(value=base_message
-                                    # """You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders.
-                                    #        Provide no advice, commentary, or additional context.
-                                    #        Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes.
-                                    #        """
-                                    , label="System message"
-                                    , visible=False)
+        # system_message_box = gr.Textbox(value=base_message
+        #                             # """You are a chatbot that responds with famous quotes from books, movies, philsophers, and business leaders.
+        #                             #        Provide no advice, commentary, or additional context.
+        #                             #        Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes.
+        #                             #        """
+        #                             , label="System message"
+        #                             , visible=False)
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
-
-    with gr.Row():
         temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature")
         practicality = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Practicality")
 
@@ -156,8 +153,8 @@ with gr.Blocks(css=custom_css) as demo:
     cancel_button = gr.Button("Cancel Inference", variant="danger")
     # Adjusted to ensure history is maintained and passed correctly
     user_input.submit(respond, 
-                      inputs=[user_input, chat_history, system_message_box, temperature, practicality, use_local_model],
-                      outputs=[chat_history, system_message_box])
+                      inputs=[user_input, chat_history, temperature, practicality, use_local_model],
+                      outputs=chat_history)
 
     cancel_button.click(cancel_inference)
 
