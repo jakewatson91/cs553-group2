@@ -1,11 +1,11 @@
 #! /bin/bash
 
-PORT=21003
+PORT=22002
 MACHINE=paffenroth-23.dyn.wpi.edu
 STUDENT_ADMIN_KEY_PATH=../../scripts/
 
 # Clean up from previous runs
-ssh-keygen -f "/home/rcpaffenroth/.ssh/known_hosts" -R "[paffenroth-23.dyn.wpi.edu]:21003"
+ssh-keygen -f "/$HOME/.ssh/known_hosts" -R "[paffenroth-23.dyn.wpi.edu]:22002"
 rm -rf tmp
 
 # Create a temporary directory
@@ -49,7 +49,7 @@ echo "checking that the authorized_keys file is correct"
 ssh -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "cat ~/.ssh/authorized_keys"
 
 # clone the repo
-git clone https://github.com/rcpaffenroth/CS553_example
+git clone https://github.com/jakewatson91/cs553-group2/
 
 # Copy the files to the server
 scp -P ${PORT} -o StrictHostKeyChecking=no -r CS553_example student-admin@${MACHINE}:~/
@@ -57,11 +57,11 @@ scp -P ${PORT} -o StrictHostKeyChecking=no -r CS553_example student-admin@${MACH
 # check that the code in installed and start up the product
 # COMMAND="ssh -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE}"
 
-# ${COMMAND} "ls CS553_example"
+# ${COMMAND} "ls cs553-group2"
 # ${COMMAND} "sudo apt install -qq -y python3-venv"
-# ${COMMAND} "cd CS553_example && python3 -m venv venv"
-# ${COMMAND} "cd CS553_example && source venv/bin/activate && pip install -r requirements.txt"
-# ${COMMAND} "nohup CS553_example/venv/bin/python3 CS553_example/app.py > log.txt 2>&1 &"
+# ${COMMAND} "cd cs553-group2 && python3 -m venv venv"
+# ${COMMAND} "cd cs553-group2 && source venv/bin/activate && pip install -r requirements.txt"
+# ${COMMAND} "nohup cs553-group2/venv/bin/python3 CS553_example/app.py > log.txt 2>&1 &"
 
 # nohup ./whatever > /dev/null 2>&1 
 
