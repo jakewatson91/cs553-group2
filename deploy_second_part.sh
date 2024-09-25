@@ -1,6 +1,6 @@
 #! /bin/bash
 
-PORT=21003
+PORT=22002
 MACHINE=paffenroth-23.dyn.wpi.edu
 
 # Change to the temporary directory
@@ -13,11 +13,11 @@ ssh-add mykey
 # check that the code in installed and start up the product
 COMMAND="ssh -i tmp/mykey -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE}"
 
-${COMMAND} "ls CS553_example"
+${COMMAND} "ls cs553-group2"
 ${COMMAND} "sudo apt install -qq -y python3-venv"
-${COMMAND} "cd CS553_example && python3 -m venv venv"
-${COMMAND} "cd CS553_example && source venv/bin/activate && pip install -r requirements.txt"
-${COMMAND} "nohup CS553_example/venv/bin/python3 CS553_example/app.py > log.txt 2>&1 &"
+${COMMAND} "cd cs553-group2 && python3 -m venv venv"
+${COMMAND} "cd cs553-group2 && source venv/bin/activate && pip install -r requirements.txt"
+${COMMAND} "nohup cs553-group2/venv/bin/python3 CS553_example/app.py > log.txt 2>&1 &"
 
 # nohup ./whatever > /dev/null 2>&1 
 
