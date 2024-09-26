@@ -17,7 +17,7 @@ ${COMMAND} "ls cs553-group2"
 ${COMMAND} "sudo apt install -qq -y python3-venv"
 ${COMMAND} "cd cs553-group2 && python3 -m venv venv"
 ${COMMAND} "cd cs553-group2 && source venv/bin/activate && pip install -r requirements.txt"
-${COMMAND} "nohup cs553-group2/venv/bin/python3 CS553_example/app.py > log.txt 2>&1 &"
+${COMMAND} "nohup cs553-group2/venv/bin/python3 cs553-group2/app.py > log.txt 2>&1 &"
 
 # nohup ./whatever > /dev/null 2>&1 
 
