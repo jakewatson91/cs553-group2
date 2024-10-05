@@ -9,7 +9,7 @@
 #--    Users, SSH public keys, and startup scripts
 #--
 #-- Assumptions:
-#--    1) If my personal SSH key hasa access, system is stable
+#--    1) If my personal SSH key has access, system is stable
 #--    2) If system has been rebooted, that means it has been wiped
 #--    3) If system has been wiped, it has been restored to the original
 #--       state that it was in when presented to the class on 2024-09-16
@@ -22,9 +22,9 @@
 #-- Initialize
 MLOPSHOST=paffenroth-23.dyn.wpi.edu
 MLOPSPORT=22002
-MLOPSADMIN=student-admin
+MLOPSADMIN=student-admin 
 MLOPSADMINKEY=~/.ssh/${MLOPSADMIN}_key
-MLOPSPERS=andrew
+MLOPSPERS=andrew #--change to specific key name to run 
 MLOPSPERSKEY=~/.ssh/$MLOPSPERS
 
 echo; echo "`date` - Starting..."
