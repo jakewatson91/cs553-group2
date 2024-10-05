@@ -93,10 +93,6 @@ EOF
 
    done
 
-   #-- Add Andrew (but not Jake or Deep because I don't trust them) to the sudo group
-   #echo ; echo "`date` - Add group users to sudo group"
-   #$SSHCMD "sudo usermod -aG sudo andrew"
-
 fi
 
 echo ; echo "`date` - Complete"
