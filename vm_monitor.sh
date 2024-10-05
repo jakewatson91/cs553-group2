@@ -10,8 +10,8 @@ MAX_RETRIES=3             # Number of failed attempts before recovery is trigger
 FAILED_ATTEMPTS=0
 
 # Paths to your recovery scripts
-FIRST_PART="/Users/jakewatson/Desktop/cs553/cs553-group2/case-study-1/deploy_first_part.sh"
-SECOND_PART="/Users/jakewatson/Desktop/cs553/cs553-group2/case-study-1/path/to/deploy_second_part.sh"
+FIRST_PART="/Users/jakewatson/Desktop/cs553/cs553-group2/case-study-1/mlops_keys.sh"
+SECOND_PART="/Users/jakewatson/Desktop/cs553/cs553-group2/case-study-1/path/to/mlops_product.sh"
 
 # Function to trigger the recovery process
 function recover_vm() {
