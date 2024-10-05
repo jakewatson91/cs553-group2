@@ -11,15 +11,13 @@
 #--
 
 #-- Initialize
-mlopshost=paffenroth-23.dyn.wpi.edu
-mlopsport=22002
-mlopsadmin=student-admin
-#mlopsadminkey=~/.ssh/${mlopsadmin}_key
-mlopspers=andrew
-mlopsperskey=~/.ssh/${mlopspers}
+MLOPSHOST=paffenroth-23.dyn.wpi.edu
+MLOPSPORT=22002
+MLOPSADMIN=student-admin
+#MLOPSADMINKEY=~/.ssh/${MLOPSADMIN}_key
+MLOPSPERS=andrew
+MLOPSPERSKEY=~/.ssh/${MLOPSPERS}
 MLOPSPRODUCT=cs553-group2
-githubuser=1keane
-githubpasswd=`cat ~/.p-github-WPI-admin`
 
 echo; echo "`date` - Starting..."
 
@@ -30,29 +28,31 @@ rm -rf $MLOPSPRODUCT
 
 #-- Clone the GitHub Repo with Group 2 Product
 echo ; echo "Cloning GitHub repo - $MLOPSPRODUCT"
-git clone https://$githubuser:$githubpasswd@github.com/jakewatson91/$MLOPSPRODUCT
+git clone git@github.com:jakewatson91/cs553-group2
 
 #-- Copy the product files to the server
 echo ; echo "Copying proudct code to server"
-scp -p -i $mlopsperskey -P $mlopsport -r $MLOPSPRODUCT $mlopsadmin@$mlopshost:
+scp -p -i $MLOPSPERSKEY -P $MLOPSPORT -r $MLOPSPRODUCT $MLOPSADMIN@$MLOPSHOST:
 
-# check that the code in installed and start up the product
-SSHCMD="ssh -i $MLOPSADMINKEY -p $MLOPSPORT $MLOPSADMIN@$MLOPSHOST"
-#COMMAND="ssh -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE}"
-$SSHCMD "ls cs553-group2"
+#-- check that the code in installed and start up the product
+echo ; echo "Verifying product exists on server"
+SSHCMD="ssh -i $MLOPSPERSKEY -p $MLOPSPORT $MLOPSADMIN@$MLOPSHOST"
+$SSHCMD "ls -lad cs553-group2"
 
-exit
+#-- Install the Python virtual environment application
+echo ; echo "Installing Pything virtual environment application"
+$SSHCMD "sudo apt install -qq -y python3-venv"
 
-# $SSHCMD "sudo apt install -qq -y python3-venv"
-# $SSHCMD "cd cs553-group2 && python3 -m venv venv"
-# $SSHCMD "cd cs553-group2 && source venv/bin/activate && pip install -r requirements.txt"
-# $SSHCMD "nohup cs553-group2/venv/bin/python3 cs553-group2/app.py > log.txt 2>&1 &"
+#-- Create and activate the Python virtual environment
+echo ; echo "Create and activate the Python virtual environment, install required packages"
+$SSHCMD "cd cs553-group2 && python3 -m venv venv"
+$SSHCMD "cd cs553-group2 && source venv/bin/activate && pip install -r requirements.txt"
 
-# nohup ./whatever > /dev/null 2>&1 
+#-- Start the product and use nohup to keep up even if terminal windows close
+echo ; echo "Start the product"
+# $SSHCMD "nohup cs553-group2/venv/bin/python3 CS553_example/app.py > log.txt 2>&1 &"
+
 
 # debugging ideas
 # sudo apt-get install gh
-# gh auth login
 # requests.exceptions.HTTPError: 429 Client Error: Too Many Requests for url: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta/v1/chat/completions
-# log.txt
-
