@@ -50,9 +50,9 @@ $SSHCMD "cd cs553-group2 && source venv/bin/activate && pip install -r requireme
 
 #-- Start the product and use nohup to keep up even if terminal windows close
 echo ; echo "`date` - Start the product"
-# $SSHCMD "nohup cs553-group2/venv/bin/python3 CS553_example/app.py > log.txt 2>&1 &"
+$SSHCMD "nohup cs553-group2/venv/bin/python3 CS553_example/app.py > log.txt 2>&1 &"
 
 
-# debugging ideas
+# debugging ideas (original notes from Professor)
 # sudo apt-get install gh
 # requests.exceptions.HTTPError: 429 Client Error: Too Many Requests for url: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta/v1/chat/completions
