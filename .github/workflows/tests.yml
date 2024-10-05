@@ -84,9 +84,9 @@ def test_local():
     runtime = end_time - start_time
 
     final_history, final_system_message = result[-1]
-    print('Runtime: ', runtime)
-    print('Final conversation history:', final_history)
-    print('Final system message:', final_system_message)
+    print('Local Runtime: ', runtime)
+    print('Local Final conversation history:', final_history)
+    print('Local Final system message:', final_system_message)
 
 if __name__ == '__main__':
     test_api()
