@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script periodically checks if the VM is live. If so, does nothing; if not, triggers deploy_first_part and deploy_second_part
+
 # Configuration
 PORT=22002
 MACHINE=paffenroth-23.dyn.wpi.edu
