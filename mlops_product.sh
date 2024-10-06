@@ -52,6 +52,8 @@ $SSHCMD "cd $MLOPSPRODUCT && source venv/bin/activate && pip install -r requirem
 echo ; echo "`date` - Start the product"
 $SSHCMD "nohup $MLOPSPRODUCT/venv/bin/python3 $MLOPSPRODUCT/app.py > log.txt 2>&1 &"
 
+echo ; echo "`date` - Complete"
+
 
 # debugging ideas (original notes from Professor)
 # sudo apt-get install gh
