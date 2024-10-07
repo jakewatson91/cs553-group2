@@ -2,11 +2,15 @@ import gradio as gr
 from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
-import random
 
 # Inference client setup
-client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
-pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
+client = InferenceClient(model="HuggingFaceH4/zephyr-7b-beta")
+pipe = pipeline(
+    "text-generation",
+    "microsoft/Phi-3-mini-4k-instruct",
+    torch_dtype=torch.bfloat16,
+    device_map="auto"
+)
 
 # Global flag to handle cancellation
 stop_inference = False
@@ -20,20 +24,23 @@ def respond(
     history: list[tuple[str, str]],
     system_message_val,
     temperature=0.7,
-    practicality=None,
-    use_local_model=False,
+    # practicality=None,  # Commented out
     max_tokens=256,
+    use_local_model=False,
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
 
-    if practicality is None:
-        practicality = round(random.uniform(0,1), 1)  # Initialize random practicality score
-    if practicality > 0.5:
-        append_message = "Provide actionable advice or direct instructions."
-    else:
-        append_message = "Provide theoretical concepts or abstract quotes."
-    system_message_val = f"{base_message} {append_message}"
+    # if practicality is None:
+    #     practicality = round(random.uniform(0,1), 1)  # Initialize random practicality score
+    # if practicality > 0.5:
+    #     append_message = "Provide actionable advice or direct instructions."
+    # else:
+    #     append_message = "Provide theoretical concepts or abstract quotes."
+    # system_message_val = f"{base_message} {append_message}"
+
+    # Keeping the base message as it is without modifications
+    system_message_val = base_message
 
     # Initialize history if it's None
     if history is None:
@@ -53,7 +60,7 @@ def respond(
         output = pipe(
             input_text,
             temperature=temperature,
-            max_new_tokens=max_tokens,
+            max_new_tokens=256,
             do_sample=True,
             num_return_sequences=1,
         )
@@ -79,7 +86,7 @@ def respond(
             messages=messages,
             stream=True,
             temperature=temperature,
-            max_tokens=max_tokens
+            max_tokens=256
         ):
             if stop_inference:
                 response = "Inference cancelled."
@@ -157,7 +164,7 @@ with gr.Blocks(css=custom_css) as demo:
         )
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
         temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature")
-        practicality = gr.Slider(minimum=0.1, maximum=1.0, value=0.5, step=0.05, label="Practicality")
+        # practicality = gr.Slider(minimum=0.1, maximum=1.0, value=0.5, step=0.05, label="Practicality")  # Commented out
 
     chat_history = gr.Chatbot(label="Chat")
 
@@ -167,11 +174,12 @@ with gr.Blocks(css=custom_css) as demo:
     # Adjusted to ensure history is maintained and passed correctly
     user_input.submit(
         respond, 
-        inputs=[user_input, chat_history, system_message_box, temperature, practicality, use_local_model],
+        # Removed practicality from inputs
+        inputs=[user_input, chat_history, system_message_box, temperature, use_local_model],
         outputs=[chat_history, system_message_box]
     )
 
     cancel_button.click(cancel_inference)
 
 if __name__ == "__main__":
-    demo.launch(share=True)
+    demo.launch(share=False)
