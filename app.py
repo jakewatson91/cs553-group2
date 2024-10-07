@@ -2,6 +2,7 @@ import gradio as gr
 from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
+import json
 
 # Inference client setup
 client = InferenceClient(model="HuggingFaceH4/zephyr-7b-beta")
@@ -95,12 +96,16 @@ def respond(
 
             # Store the chunk for debugging
             print(f"Raw payload: {message_chunk}")
+            print(f"Sending API request with: {messages} and max_tokens={max_tokens}")
 
             try:
                 # Adjusted parsing logic
                 delta = message_chunk.choices[0].delta
                 token = getattr(delta, 'content', '')
                 response += token
+            except json.JSONDecodeError as e:
+                print(f"JSON decoding error: {e} - Raw payload: {message_chunk}")
+                continue
             except Exception as e:
                 print("Error parsing message chunk:", e)
                 continue  # Skip to the next message_chunk
