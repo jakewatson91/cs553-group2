@@ -61,6 +61,10 @@ def respond(
                 response = "Inference cancelled."
                 yield history + [(message, response)]
                 return
+            
+            payload = message_chunk  # Store the chunk for debugging
+            print(f"Raw payload: {payload}")
+
             token = output['generated_text'][-1]['content']
             response += token
             yield history + [(message, response)], system_message_val  # Yield history + new response + update system_message gradio component
@@ -87,9 +91,10 @@ def respond(
                 response = "Inference cancelled."
                 yield history + [(message, response)]
                 return
-            if stop_inference:
-                response = "Inference cancelled."
-                break
+            
+            payload = message_chunk  # Store the chunk for debugging
+            print(f"Raw payload: {payload}")
+    
             token = message_chunk.choices[0].delta.content
             response += token
             yield history + [(message, response)], system_message_val  # Yield history + new response + update system_message gradio component
@@ -169,4 +174,4 @@ with gr.Blocks(css=custom_css) as demo:
     cancel_button.click(cancel_inference)
 
 if __name__ == "__main__":
-    demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces
+    demo.launch(share=True)  # Remove share=True because it's not supported on HF Spaces
