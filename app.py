@@ -3,27 +3,30 @@ from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
 
-# Inference client setup
-client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
-pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
+# Set up the local model (Phi-3-mini-4k-instruct) for text generation
+local_pipe = pipeline("text-generation", model="microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
 
-# Global flag to handle cancellation
+# Set up the Inference client for API-based inference (Zephyr 7B model)
+client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
+
+# Global flag for stopping inference (if needed)
 stop_inference = False
 
-# Default system message
+# Occam's Razor-themed system message
 DEFAULT_SYSTEM_MESSAGE = (
-    "You are a helpful chatbot who answers questions according to Occam's razor, "
+    "You are a helpful chatbot who answers questions according to Occam's Razor, "
     "which suggests that the simplest explanation is usually the best one. Answer as concisely as possible. "
     "DO NOT explain everything in 3-5 paragraphs. Only provide the single simplest possible answer or solution. "
     "Ensure that the answer is still clearly explained to a user who does not understand, "
-    "but avoid long and drawn out answers to simple questions. Prioritize speed of answering."
+    "but avoid long and drawn-out answers to simple questions. Prioritize speed of answering."
 )
 
+# Function to generate responses
 def respond(
     message,
-    history: list[tuple[str, str]],
-    system_message,
-    max_tokens=512,
+    history,
+    system_message=DEFAULT_SYSTEM_MESSAGE,
+    max_tokens=256,
     temperature=0.7,
     top_p=0.95,
     use_local_model=False,
@@ -35,65 +38,51 @@ def respond(
     if history is None:
         history = []
 
-    # Use `system_message` from the state
-    if use_local_model:
-        # Local inference 
-        messages = [{"role": "system", "content": system_message}]
-        for val in history:
-            if val[0]:
-                messages.append({"role": "user", "content": val[0]})
-            if val[1]:
-                messages.append({"role": "assistant", "content": val[1]})
-        messages.append({"role": "user", "content": message})
+    # Prepare the chat messages with the system message and conversation history
+    messages = [{"role": "system", "content": system_message}]
+    for user_input, bot_response in history:
+        messages.append({"role": "user", "content": user_input})
+        messages.append({"role": "assistant", "content": bot_response})
+    messages.append({"role": "user", "content": message})
 
-        response = ""
-        for output in pipe(
-            messages,
+    # Generate response based on the model selected
+    if use_local_model:
+        # Use local model (Phi-3-mini-4k-instruct)
+        prompt = local_pipe.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        output = local_pipe(
+            prompt,
             max_new_tokens=max_tokens,
-            temperature=temperature,
             do_sample=True,
-            top_p=top_p,
-        ):
-            if stop_inference:
-                response = "Inference cancelled."
-                yield history + [(message, response)]
-                return
-            token = output['generated_text'][-1]['content']
-            response += token
-            yield history + [(message, response)]  # Yield history + new response
+            temperature=temperature,
+            top_p=top_p
+        )
+        response_text = output[0]["generated_text"].split("<|assistant|>")[-1].strip()
 
     else:
-        # API-based inference 
-        messages = [{"role": "system", "content": system_message}]
-        for val in history:
-            if val[0]:
-                messages.append({"role": "user", "content": val[0]})
-            if val[1]:
-                messages.append({"role": "assistant", "content": val[1]})
-        messages.append({"role": "user", "content": message})
+        # Use API-based model (Zephyr 7B)
+        response_text = ""
+        try:
+            response = client.chat_completion(
+                messages=messages,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                stream=False
+            )
+            response_text = response['choices'][0]['message']['content']
+        except Exception as e:
+            print(f"Error in API response: {e}")
+            response_text = "Error generating response"
 
-        response = ""
-        for message_chunk in client.chat_completion(
-            messages,
-            max_tokens=max_tokens,
-            stream=True,
-            temperature=temperature,
-            top_p=top_p,
-        ):
-            if stop_inference:
-                response = "Inference cancelled."
-                yield history + [(message, response)]
-                return
-            token = message_chunk.choices[0].delta.content
-            response += token
-            yield history + [(message, response)]  # Yield history + new response
-
+    # Append the user message and model response to history
+    history.append((message, response_text))
+    return history
 
 def cancel_inference():
     global stop_inference
     stop_inference = True
 
-# Custom CSS for a fancy look
+# Custom CSS for Gradio interface styling
 custom_css = """
 #main-container {
     background-color: #f0f0f0;
@@ -133,31 +122,34 @@ custom_css = """
 }
 """
 
-# Define the interface
+# Define the Gradio interface
 with gr.Blocks(css=custom_css) as demo:
-    gr.Markdown("<h1 style='text-align: center;'>🪒 Occam's Chatbot 🪒</h1>")
-    gr.Markdown("The simplest solution is often the best...")
+    gr.Markdown("<h1 style='text-align: center;'>🪒 Occam's Razor Chatbot 🪒</h1>")
+    gr.Markdown("Occam's Razor is the problem-solving principle that recommends searching for explanations constructed with the smallest possible set of elements.")
 
-    # Define a persistent state for the system message
+    # System message state
     system_message_state = gr.State(value=DEFAULT_SYSTEM_MESSAGE)
     
-    # Checkbox to toggle local model usage
-    use_local_model = gr.Checkbox(label="Use Local Model", value=False)
+    # Toggle to use the local model or API
+    use_local_model = gr.Checkbox(label="Use Local Model (Phi-3-mini-4k-instruct)", value=False)
 
-    # Parameters for model control
-    max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
-    temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature")
-    top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
-
-    # Chat components
+    # Chat interface elements
     chat_history = gr.Chatbot(label="Chat")
-    user_input = gr.Textbox(show_label=False, placeholder="Type your message here...")
+    user_input = gr.Textbox(show_label=False, placeholder="The simplest solution is usually the best...")
+
+    # Control sliders
+    max_tokens = gr.Slider(minimum=1, maximum=512, value=256, step=1, label="Max Tokens")
+    temperature = gr.Slider(minimum=0.1, maximum=2.0, value=0.7, step=0.1, label="Temperature")
+    top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p")
+
+    # Cancel button
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
-    # Pass the `system_message_state` to the `respond` function
+    # Submit the input and generate response
     user_input.submit(respond, [user_input, chat_history, system_message_state, max_tokens, temperature, top_p, use_local_model], chat_history)
 
+    # Cancel inference button
     cancel_button.click(cancel_inference)
 
 if __name__ == "__main__":
-    demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces
+    demo.launch(share=False)
