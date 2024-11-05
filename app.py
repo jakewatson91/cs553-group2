@@ -51,10 +51,7 @@ def respond(
         prompt = local_pipe.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
         output = local_pipe(
             prompt,
-            max_new_tokens=max_tokens,
-            do_sample=True,
-            temperature=temperature,
-            top_p=top_p
+            do_sample=True
         )
         response_text = output[0]["generated_text"].split("<|assistant|>")[-1].strip()
 
@@ -64,9 +61,6 @@ def respond(
         try:
             response = client.chat_completion(
                 messages=messages,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                top_p=top_p,
                 stream=False
             )
             response_text = response['choices'][0]['message']['content']
@@ -124,8 +118,8 @@ custom_css = """
 
 # Define the Gradio interface
 with gr.Blocks(css=custom_css) as demo:
-    gr.Markdown("<h1 style='text-align: center;'>🪒 Occam's Razor Chatbot 🪒</h1>")
-    gr.Markdown("Occam's Razor is the problem-solving principle that recommends searching for explanations constructed with the smallest possible set of elements.")
+    gr.Markdown("<h1 style='text-align: center;'>🪒 Occam's Chatbot 🪒</h1>")
+    gr.Markdown("Explanations, simplified")
 
     # System message state
     system_message_state = gr.State(value=DEFAULT_SYSTEM_MESSAGE)
@@ -137,16 +131,11 @@ with gr.Blocks(css=custom_css) as demo:
     chat_history = gr.Chatbot(label="Chat")
     user_input = gr.Textbox(show_label=False, placeholder="The simplest solution is usually the best...")
 
-    # Control sliders
-    max_tokens = gr.Slider(minimum=1, maximum=512, value=256, step=1, label="Max Tokens")
-    temperature = gr.Slider(minimum=0.1, maximum=2.0, value=0.7, step=0.1, label="Temperature")
-    top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p")
-
     # Cancel button
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
     # Submit the input and generate response
-    user_input.submit(respond, [user_input, chat_history, system_message_state, max_tokens, temperature, top_p, use_local_model], chat_history)
+    user_input.submit(respond, [user_input, chat_history, system_message_state, use_local_model], chat_history)
 
     # Cancel inference button
     cancel_button.click(cancel_inference)
