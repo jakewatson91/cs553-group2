@@ -149,9 +149,8 @@ with gr.Blocks(css=custom_css) as demo:
     # user_input.submit(respond, [user_input, chat_history, use_local_model], chat_history)
     user_input.submit(
         fn=respond,
-        inputs=[user_input, chat_history],
-        outputs=chat_history,
-        kwargs={"use_local_model": use_local_model}
+        inputs=[user_input, chat_history, use_local_model],
+        outputs=chat_history
     )
 
     cancel_button.click(cancel_inference)
