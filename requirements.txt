@@ -1,7 +1,7 @@
 -f https://download.pytorch.org/whl/torch_stable.html 
 torch==2.3.0+cpu
 
-huggingface_hub==0.23.*
+huggingface_hub
 gradio==4.43.*
 transformers==4.43.*
 accelerate==0.33.*
