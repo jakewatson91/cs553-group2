@@ -2,10 +2,23 @@ import gradio as gr
 from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
+import json
+import random
+from prometheus_client import start_http_server, Counter, Summary
+#p=9100 are standard docker metrics
 
 # Inference client setup
-client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
-pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
+client = InferenceClient(model="HuggingFaceH4/zephyr-7b-beta")
+pipe = pipeline(
+    "text-generation",
+    "microsoft/Phi-3-mini-4k-instruct",
+    torch_dtype=torch.bfloat16,
+    device_map="auto"
+)
+
+base_message = """You are a chatbot that responds with famous quotes from books, movies, philosophers, and business leaders.
+Provide no advice, commentary, or additional context.
+Your responses should be concise, no more than 3 quotes, and consist only of famous motivational quotes."""
 
 # Global flag to handle cancellation
 stop_inference = False
@@ -13,14 +26,25 @@ stop_inference = False
 def respond(
     message,
     history: list[tuple[str, str]],
-    system_message="You are a helpful chatbot who answers questions in a concise manner. DO NOT explain everything in 3-5 paragraphs. Give the most concise answer possible for any given problem. Ensure that the answer is still clearly explained to a user who does not understand, but avoid long and drawn out answers to simple questions. Prioritize speed of answering.",
-    max_tokens=512,
+    system_message=base_message,
+    max_tokens=256,
     temperature=0.7,
-    top_p=0.95,
+    # practicality=0.95,
     use_local_model=False,
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
+
+    # if practicality <= 0.5:
+    #     practicality = round(random.uniform(0,1), 1)  # Initialize random practicality score
+    # if practicality > 0.5:
+    #     append_message = "Provide actionable advice or direct instructions."
+    # else:
+    #     append_message = "Provide theoretical concepts or abstract quotes."
+    # system_message_val = f"{base_message} {append_message}"
+
+    # # Keeping the base message as it is without modifications
+    # system_message_val = base_message
 
     # Initialize history if it's None
     if history is None:
@@ -42,7 +66,6 @@ def respond(
             max_new_tokens=max_tokens,
             temperature=temperature,
             do_sample=True,
-            top_p=top_p,
         ):
             if stop_inference:
                 response = "Inference cancelled."
@@ -50,7 +73,7 @@ def respond(
                 return
             token = output['generated_text'][-1]['content']
             response += token
-            yield history + [(message, response)]  # Yield history + new response
+            yield history[:-1] + [(message, response)]  # Yield history + new response
 
     else:
         # API-based inference 
@@ -65,10 +88,9 @@ def respond(
         response = ""
         for message_chunk in client.chat_completion(
             messages,
-            max_tokens=max_tokens,
             stream=True,
+            max_tokens=256,
             temperature=temperature,
-            top_p=top_p,
         ):
             if stop_inference:
                 response = "Inference cancelled."
@@ -79,8 +101,7 @@ def respond(
                 break
             token = message_chunk.choices[0].delta.content
             response += token
-            yield history + [(message, response)]  # Yield history + new response
-
+            yield history[:-1] + [(message, response)]  # Yield history + new response
 
 def cancel_inference():
     global stop_inference
@@ -128,28 +149,29 @@ custom_css = """
 
 # Define the interface
 with gr.Blocks(css=custom_css) as demo:
-    gr.Markdown("<h1 style='text-align: center;'>📠 Quick-Chat 📠</h1>")
-    gr.Markdown("Ask a question. Get a concise answer.")
+    gr.Markdown("<h1 style='text-align: center;'>💡 Ask the Greats 💡</h1>")
+    gr.Markdown("Want to know the secret to life? Ask away!")
 
     with gr.Row():
-        system_message = gr.Textbox(value="Ask a question. Get a concise answer.", interactive=True)
+        system_message_box = gr.Textbox(
+            value=base_message,
+            label="System message",
+            visible=False
+        )
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
-
-    with gr.Row():
-        max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
         temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature")
-        top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
+        # practicality = gr.Slider(minimum=0.1, maximum=1.0, value=0.5, step=0.05, label="Practicality")  # Commented out
 
     chat_history = gr.Chatbot(label="Chat")
 
-    user_input = gr.Textbox(show_label=False, placeholder="Type your message here...")
+    user_input = gr.Textbox(show_label=False, placeholder="What is the meaning of life?")
 
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
-    # Adjusted to ensure history is maintained and passed correctly
-    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model], chat_history)
+    user_input.submit(respond, [user_input, chat_history, system_message_box, temperature, use_local_model], chat_history)
 
     cancel_button.click(cancel_inference)
 
 if __name__ == "__main__":
-    demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces
+    start_http_server(8000) # expose metrics on port 8000
+    demo.launch(share=True)
