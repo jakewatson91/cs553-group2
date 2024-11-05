@@ -13,7 +13,7 @@ stop_inference = False
 def respond(
     message,
     history: list[tuple[str, str]],
-    system_message="You are a helpful chatbot who answers questions in a concise manner. DO NOT explain everything in 3-5 paragraphs. Give the most concise answer possible for any given problem. Ensure that the answer is still clearly explained to a user who does not understand, but avoid long and drawn out answers to simple questions. Prioritize speed of answering.",
+    system_message="You are a friendly Chatbot.",
     max_tokens=512,
     temperature=0.7,
     top_p=0.95,
@@ -128,11 +128,11 @@ custom_css = """
 
 # Define the interface
 with gr.Blocks(css=custom_css) as demo:
-    gr.Markdown("<h1 style='text-align: center;'>📠 Quick-Chat 📠</h1>")
-    gr.Markdown("Ask a question. Get a concise answer.")
+    gr.Markdown("<h1 style='text-align: center;'>🌟 Fancy AI Chatbot 🌟</h1>")
+    gr.Markdown("Interact with the AI chatbot using customizable settings below.")
 
     with gr.Row():
-        system_message = gr.Textbox(value="Ask a question. Get a concise answer.", interactive=True)
+        system_message = gr.Textbox(value="You are a friendly Chatbot.", label="System message", interactive=True)
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
 
     with gr.Row():
@@ -153,3 +153,5 @@ with gr.Blocks(css=custom_css) as demo:
 
 if __name__ == "__main__":
     demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces
+
+
