@@ -2,7 +2,7 @@
 torch==2.3.0+cpu
 
 huggingface_hub
-gradio==4.43.*
+gradio
 transformers==4.43.*
 accelerate==0.33.*
 pydantic==2.6.*
