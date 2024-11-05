@@ -132,13 +132,12 @@ with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("Ask a question. Get a concise answer.")
 
     with gr.Row():
-        system_message = gr.Textbox(value="Ask a question. Get a concise answer.", interactive=True)
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
 
-    with gr.Row():
-        max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
-        temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature")
-        top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
+    # with gr.Row():
+        # max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
+        # temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature")
+        # top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
 
     chat_history = gr.Chatbot(label="Chat")
 
@@ -147,7 +146,7 @@ with gr.Blocks(css=custom_css) as demo:
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
     # Adjusted to ensure history is maintained and passed correctly
-    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model], chat_history)
+    user_input.submit(respond, [user_input, chat_history, use_local_model], chat_history)
 
     cancel_button.click(cancel_inference)
 
