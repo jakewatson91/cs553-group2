@@ -2,6 +2,13 @@ import gradio as gr
 from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
+from prometheus_client import start_http_server, Counter, Summary
+
+# Prometheus metrics
+REQUEST_COUNTER = Counter('app_requests_total', 'Total number of requests')
+SUCCESSFUL_REQUESTS = Counter('app_successful_requests_total', 'Total number of successful requests')
+FAILED_REQUESTS = Counter('app_failed_requests_total', 'Total number of failed requests')
+REQUEST_DURATION = Summary('app_request_duration_seconds', 'Time spent processing request')
 
 # Set up the local model (Phi-3-mini-4k-instruct) for text generation
 local_pipe = pipeline("text-generation", model="microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
@@ -33,6 +40,8 @@ def respond(
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
+    REQUEST_COUNTER.inc()  # Increment request counter
+    request_timer = REQUEST_DURATION.time()  # Start timing the request
 
     # Initialize history if it's None
     if history is None:
@@ -70,6 +79,15 @@ def respond(
 
     # Append the user message and model response to history
     history.append((message, response_text))
+
+    try:
+        SUCCESSFUL_REQUESTS.inc()  # Increment successful request counter
+    except Exception as e:
+        FAILED_REQUESTS.inc()  # Increment failed request counter
+        yield history + [(message, f"Error: {str(e)}")]
+    finally:
+        request_timer.observe_duration()  # Stop timing the request
+
     return history
 
 def cancel_inference():
@@ -141,4 +159,5 @@ with gr.Blocks(css=custom_css) as demo:
     cancel_button.click(cancel_inference)
 
 if __name__ == "__main__":
+    start_http_server(8000)  # Expose metrics on port 8000
     demo.launch(share=False)
