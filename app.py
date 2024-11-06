@@ -41,54 +41,49 @@ def respond(
     global stop_inference
     stop_inference = False  # Reset cancellation flag
     REQUEST_COUNTER.inc()  # Increment request counter
-    request_timer = REQUEST_DURATION.time()  # Start timing the request
 
-    # Initialize history if it's None
-    if history is None:
-        history = []
+    # Start timing the request
+    with REQUEST_DURATION.time():
+        # Initialize history if it's None
+        if history is None:
+            history = []
 
-    # Prepare the chat messages with the system message and conversation history
-    messages = [{"role": "system", "content": system_message}]
-    for user_input, bot_response in history:
-        messages.append({"role": "user", "content": user_input})
-        messages.append({"role": "assistant", "content": bot_response})
-    messages.append({"role": "user", "content": message})
+        # Prepare the chat messages with the system message and conversation history
+        messages = [{"role": "system", "content": system_message}]
+        for user_input, bot_response in history:
+            messages.append({"role": "user", "content": user_input})
+            messages.append({"role": "assistant", "content": bot_response})
+        messages.append({"role": "user", "content": message})
 
-    # Generate response based on the model selected
-    if use_local_model:
-        # Use local model (Phi-3-mini-4k-instruct)
-        prompt = local_pipe.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-        output = local_pipe(
-            prompt,
-            do_sample=True
-        )
-        response_text = output[0]["generated_text"].split("<|assistant|>")[-1].strip()
-
-    else:
-        # Use API-based model (Zephyr 7B)
-        response_text = ""
+        # Generate response based on the model selected
         try:
-            response = client.chat_completion(
-                messages=messages,
-                stream=False
-            )
-            response_text = response['choices'][0]['message']['content']
+            if use_local_model:
+                # Use local model (Phi-3-mini-4k-instruct)
+                prompt = local_pipe.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                output = local_pipe(
+                    prompt,
+                    do_sample=True
+                )
+                response_text = output[0]["generated_text"].split("<|assistant|>")[-1].strip()
+            else:
+                # Use API-based model (Zephyr 7B)
+                response = client.chat_completion(
+                    messages=messages,
+                    stream=False
+                )
+                response_text = response['choices'][0]['message']['content']
+            SUCCESSFUL_REQUESTS.inc()  # Increment successful request counter
+
         except Exception as e:
+            FAILED_REQUESTS.inc()  # Increment failed request counter
             print(f"Error in API response: {e}")
             response_text = "Error generating response"
+            history.append((message, response_text))
+            return history  # Return history with error message if an exception occurs
 
-    # Append the user message and model response to history
-    history.append((message, response_text))
-
-    try:
-        SUCCESSFUL_REQUESTS.inc()  # Increment successful request counter
-    except Exception as e:
-        FAILED_REQUESTS.inc()  # Increment failed request counter
-        yield history + [(message, f"Error: {str(e)}")]
-    finally:
-        request_timer.observe_duration()  # Stop timing the request
-
-    return history
+        # Append the user message and model response to history
+        history.append((message, response_text))
+        return history
 
 def cancel_inference():
     global stop_inference
