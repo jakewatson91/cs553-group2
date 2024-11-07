@@ -4,8 +4,8 @@ global:
 scrape_configs:
   - job_name: 'gradio_app'
     static_configs:
-      - targets: ['172.17.0.6:8000']  # Gradio metrics
+      - targets: ['172.19.0.9:8000']  # Gradio metrics
 
   - job_name: 'node_exporter_gradio'
     static_configs:
-      - targets: ['172.17.0.6:9100']  # Node Exporter
+      - targets: ['172.19.0.9:9100']  # Node Exporter
