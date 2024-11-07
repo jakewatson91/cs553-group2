@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
     apt-get upgrade -yq ca-certificates && \
     apt-get install -yq --no-install-recommends \
-    prometheus-node-exporter
+    prometheus-node-exporter curl
 
 EXPOSE 7860
 EXPOSE 8000
