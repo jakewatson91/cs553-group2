@@ -3,12 +3,16 @@ from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
 from prometheus_client import start_http_server, Counter, Summary
+import time
 
 # Prometheus metrics
 REQUEST_COUNTER = Counter('app_requests_total', 'Total number of requests')
 SUCCESSFUL_REQUESTS = Counter('app_successful_requests_total', 'Total number of successful requests')
 FAILED_REQUESTS = Counter('app_failed_requests_total', 'Total number of failed requests')
 REQUEST_DURATION = Summary('app_request_duration_seconds', 'Time spent processing request')
+RESPONSE_LENGTH = Summary('app_response_length', 'Length of the chatbot response in characters')
+MODEL_ERRORS = Counter('app_model_errors_total', 'Total number of model errors', ['error_type'])
+MESSAGES_PER_SESSION = Summary('app_messages_per_session', 'Number of messages per user session')
 
 # Set up the local model (Phi-3-mini-4k-instruct) for text generation
 local_pipe = pipeline("text-generation", model="microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
@@ -28,6 +32,11 @@ DEFAULT_SYSTEM_MESSAGE = (
     "but avoid long and drawn-out answers to simple questions. Prioritize speed of answering."
 )
 
+SESSION_TIMEOUT = 300  # 5 minutes in seconds
+last_activity_time = time.time()
+
+message_count = 0
+
 # Function to generate responses
 def respond(
     message,
@@ -38,8 +47,19 @@ def respond(
     top_p=0.95,
     use_local_model=False,
 ):
-    global stop_inference
+    global stop_inference, last_activity_time, message_count
     stop_inference = False  # Reset cancellation flag
+    current_time = time.time()
+
+    # Check if the session has timed out
+    if current_time - last_activity_time > SESSION_TIMEOUT:
+        if message_count > 0:
+            MESSAGES_PER_SESSION.observe(message_count)  # Log the message count for the session
+        message_count = 0  # Reset message count for a new session
+
+    # Update the last activity time and increment message count
+    last_activity_time = current_time
+    message_count += 1
     REQUEST_COUNTER.inc()  # Increment request counter
 
     # Start timing the request
@@ -73,9 +93,11 @@ def respond(
                 )
                 response_text = response['choices'][0]['message']['content']
             SUCCESSFUL_REQUESTS.inc()  # Increment successful request counter
+            RESPONSE_LENGTH.observe(len(response_text))
 
         except Exception as e:
             FAILED_REQUESTS.inc()  # Increment failed request counter
+            MODEL_ERRORS.labels(error_type=str(type(e))).inc()
             print(f"Error in API response: {e}")
             response_text = "Error generating response"
             history.append((message, response_text))
