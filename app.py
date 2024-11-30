@@ -178,5 +178,5 @@ with gr.Blocks(css=custom_css) as demo:
     cancel_button.click(cancel_inference)
 
 if __name__ == "__main__":
-    start_http_server(8000)  # Expose metrics on port 8000
+    # start_http_server(8000)  # Expose metrics on port 8000
     demo.launch(share=False)
