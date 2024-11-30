@@ -45,7 +45,7 @@ def respond(
     max_tokens=256,
     temperature=0.7,
     top_p=0.95,
-    use_local_model=False,
+    # use_local_model=False,
 ):
     global stop_inference, last_activity_time, message_count
     stop_inference = False  # Reset cancellation flag
@@ -172,7 +172,7 @@ with gr.Blocks(css=custom_css) as demo:
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
     # Submit the input and generate response
-    user_input.submit(respond, [user_input, chat_history, system_message_state, use_local_model], chat_history)
+    user_input.submit(respond, [user_input, chat_history, system_message_state], chat_history) #, use_local_model --removed
 
     # Cancel inference button
     cancel_button.click(cancel_inference)
