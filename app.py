@@ -15,7 +15,7 @@ MODEL_ERRORS = Counter('app_model_errors_total', 'Total number of model errors',
 MESSAGES_PER_SESSION = Summary('app_messages_per_session', 'Number of messages per user session')
 
 # Set up the local model (Phi-3-mini-4k-instruct) for text generation
-local_pipe = pipeline("text-generation", model="microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
+# local_pipe = pipeline("text-generation", model="microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
 
 # Set up the Inference client for API-based inference (Zephyr 7B model)
 client = InferenceClient("HuggingFaceH4/zephyr-7b-beta")
@@ -77,14 +77,16 @@ def respond(
 
         # Generate response based on the model selected
         try:
-            if use_local_model:
-                # Use local model (Phi-3-mini-4k-instruct)
-                prompt = local_pipe.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-                output = local_pipe(
-                    prompt,
-                    do_sample=True
-                )
-                response_text = output[0]["generated_text"].split("<|assistant|>")[-1].strip()
+            if False:
+                break
+                # use_local_model:
+                    # # Use local model (Phi-3-mini-4k-instruct)
+                    # prompt = local_pipe.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                    # output = local_pipe(
+                    #     prompt,
+                    #     do_sample=True
+                    # )
+                    # response_text = output[0]["generated_text"].split("<|assistant|>")[-1].strip()
             else:
                 # Use API-based model (Zephyr 7B)
                 response = client.chat_completion(
@@ -160,7 +162,7 @@ with gr.Blocks(css=custom_css) as demo:
     system_message_state = gr.State(value=DEFAULT_SYSTEM_MESSAGE)
     
     # Toggle to use the local model or API
-    use_local_model = gr.Checkbox(label="Use Local Model (Phi-3-mini-4k-instruct)", value=False)
+    # use_local_model = gr.Checkbox(label="Use Local Model (Phi-3-mini-4k-instruct)", value=False)
 
     # Chat interface elements
     chat_history = gr.Chatbot(label="Chat")
