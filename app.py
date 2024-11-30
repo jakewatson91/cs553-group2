@@ -78,7 +78,7 @@ def respond(
         # Generate response based on the model selected
         try:
             if False:
-                break
+                pass
                 # use_local_model:
                     # # Use local model (Phi-3-mini-4k-instruct)
                     # prompt = local_pipe.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
