@@ -2,12 +2,9 @@
 FROM python:3.10-slim
 # Set working directory
 WORKDIR /opt/app
-# Copy only requirements.txt first
-COPY requirements.txt /opt/app/
+COPY . .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-# Copy the rest of the application
-COPY . .
 # Install packages that we need. vim is for helping with debugging
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
