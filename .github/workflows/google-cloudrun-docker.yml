@@ -78,11 +78,15 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VM_SSH }}
 
-      - name: Build and Push Docker Image on Remote VM
+      - name: Log into Remote VM
         run: |
-          ssh -p 2222 group2@melnibone.wpi.edu "cd ~/cs553-group2 && \
+          ssh -i ${{ secrets.VM_SSH }} -p 2222 group2@melnibone.wpi.edu || echo 'SSH failed'"
+
+      - name: Build and push image
+        run: |
+          cd ~/cs553-group2 && \
           docker build -t 1keane/group2_app2:latest . && \
-          docker push 1keane/group2_app2:latest || echo 'Push failed'"
+          docker push 1keane/group2_app2:latest || echo 'Push failed'
           
       - name: 'Deploy to Cloud Run'
         uses: 'google-github-actions/deploy-cloudrun@33553064113a37d688aa6937bacbdc481580be17' # google-github-actions/deploy-cloudrun@v2
