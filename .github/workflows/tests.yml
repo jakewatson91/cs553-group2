@@ -1,4 +1,4 @@
-name: Testing output
+# name: Testing output
 
 # on:
 #   push:
@@ -8,87 +8,87 @@ name: Testing output
 #     branches:
 #       - main
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v3  # Update to v3
-    - name: Set up Python
-      uses: actions/setup-python@v3  # Update to v3
-      with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install gradio huggingface_hub torch transformers accelerate
-    - name: Run tests
-      run: |
-        python -c """
-        import time
-        from app import respond, base_message
+#     steps:
+#     - uses: actions/checkout@v3  # Update to v3
+#     - name: Set up Python
+#       uses: actions/setup-python@v3  # Update to v3
+#       with:
+#         python-version: '3.x'
+#     - name: Install dependencies
+#       run: |
+#         python -m pip install --upgrade pip
+#         pip install gradio huggingface_hub torch transformers accelerate
+#     - name: Run tests
+#       run: |
+#         python -c """
+#         import time
+#         from app import respond, base_message
 
-        def test_api():
-            message = 'What is the meaning of life?'
-            history = []
-            system_message_val = base_message
-            temperature = 0.7
-            practicality = 0.8
-            max_tokens = 256
-            use_local_model = False  # Set to False to use the API-based model
+#         def test_api():
+#             message = 'What is the meaning of life?'
+#             history = []
+#             system_message_val = base_message
+#             temperature = 0.7
+#             practicality = 0.8
+#             max_tokens = 256
+#             use_local_model = False  # Set to False to use the API-based model
 
-            start_time = time.time()
+#             start_time = time.time()
 
-            result_generator = respond(
-                message=message,
-                history=history,
-                system_message_val=system_message_val,
-                temperature=temperature,
-                practicality=practicality,
-                max_tokens=max_tokens,
-                use_local_model=use_local_model
-            )
+#             result_generator = respond(
+#                 message=message,
+#                 history=history,
+#                 system_message_val=system_message_val,
+#                 temperature=temperature,
+#                 practicality=practicality,
+#                 max_tokens=max_tokens,
+#                 use_local_model=use_local_model
+#             )
 
-            for result in result_generator:
-                final_history, final_system_message = result
+#             for result in result_generator:
+#                 final_history, final_system_message = result
 
-            end_time = time.time()
-            runtime = end_time - start_time
+#             end_time = time.time()
+#             runtime = end_time - start_time
 
-            print('API Runtime: ', runtime)
-            print('API Final conversation history:', final_history)
-            print('API Final system message:', final_system_message)
+#             print('API Runtime: ', runtime)
+#             print('API Final conversation history:', final_history)
+#             print('API Final system message:', final_system_message)
 
-        def test_local():
-            message = 'What is the meaning of life?'
-            history = []
-            system_message_val = base_message
-            temperature = 0.7
-            practicality = 0.8
-            max_tokens = 256
-            use_local_model = True
+#         def test_local():
+#             message = 'What is the meaning of life?'
+#             history = []
+#             system_message_val = base_message
+#             temperature = 0.7
+#             practicality = 0.8
+#             max_tokens = 256
+#             use_local_model = True
 
-            start_time = time.time()
+#             start_time = time.time()
 
-            result = list(respond(
-                message=message,
-                history=history,
-                system_message_val=system_message_val,
-                temperature=temperature,
-                practicality=practicality,
-                max_tokens=max_tokens,
-                use_local_model=use_local_model
-            ))
+#             result = list(respond(
+#                 message=message,
+#                 history=history,
+#                 system_message_val=system_message_val,
+#                 temperature=temperature,
+#                 practicality=practicality,
+#                 max_tokens=max_tokens,
+#                 use_local_model=use_local_model
+#             ))
 
-            end_time = time.time()
-            runtime = end_time - start_time
+#             end_time = time.time()
+#             runtime = end_time - start_time
 
-            final_history, final_system_message = result[-1]
-            print('Local Runtime: ', runtime)
-            print('Local Final conversation history:', final_history)
-            print('Local Final system message:', final_system_message)
+#             final_history, final_system_message = result[-1]
+#             print('Local Runtime: ', runtime)
+#             print('Local Final conversation history:', final_history)
+#             print('Local Final system message:', final_system_message)
 
-        if __name__ == '__main__':
-            test_api()
-            test_local()
-                """
+#         if __name__ == '__main__':
+#             test_api()
+#             test_local()
+#                 """
