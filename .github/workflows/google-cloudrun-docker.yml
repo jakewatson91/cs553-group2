@@ -80,7 +80,7 @@ jobs:
 
       - name: Log into Remote VM
         run: |
-          ssh -i ${{ secrets.VM_SSH }} -p 2222 group2@melnibone.wpi.edu || echo 'SSH failed'"
+          ssh -p 2222 group2@melnibone.wpi.edu || echo 'SSH failed'"
 
       - name: Build and push image
         run: |
